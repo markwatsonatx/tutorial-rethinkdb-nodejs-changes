@@ -1,0 +1,16 @@
+{
+  "name": "tutorial-rethinkdb-nodejs-changes",
+  "version": "0.0.1",
+  "description": "",
+  "author": "Mark Watson <markwatsonatx@gmail.com>",
+  "main": "server.js",
+  "scripts": {
+    "start": "rm -rf node_modules && npm install && nodemon -L server.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "nodemon": "^1.9.2",
+    "rethinkdb": "^2.3.2",
+    "websocket": "^1.0.23"
+  }
+}
