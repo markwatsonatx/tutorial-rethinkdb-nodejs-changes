@@ -1,28 +1,29 @@
 var r = require('rethinkdb');
 
 // when a client is first created it will monitor all games
-function Client(connection) {
+function Client(connection, app) {
     this.connection = connection;
-    this.monitorAllGames();
+    this.monitorAllGames(app);
 }
 
 Client.prototype.monitorAllGames = function(app) {
-    if (this.monitorGameIdCursor) {
-		this.monitorGameIdCursor.close();
-		this.monitorGameIdCursor = null;
+    if (this.monitoringGameIdCursor) {
+		this.monitoringGameIdCursor.close();
+		this.monitoringGameIdCursor = null;
 	}
-	this.monitorAllGames = true;
-	this.monitorGameId = null;
+	this.monitoringAllGames = true;
+	this.monitoringGameId = null;
 };
 
 Client.prototype.monitorGameById = function(gameId, app) {
-    this.monitorGameId = gameId;
-    var wsConn = this.connection;
-    var rdbConn = app.get('rethinkdb-conn');
-    r.table('games').get(this.gameId).changes({includeInitial:true}).run(conn)
+    this.monitoringAllGames = false;
+	this.monitoringGameId = gameId;
+	var webSocketConnection = this.connection;
+    var dbConnection = app.get('rethinkdb.conn');
+    r.table('games').get(this.monitoringGameId).changes({includeInitial:true}).run(dbConnection)
 		.then(function(cursor) {
 			// store cursor, so we can stop if necessary
-			this.monitorGameIdCursor = cursor;
+			this.monitoringGameIdCursor = cursor;
 			cursor.each(function(err, row) {
 				if (err) {
 					throw err;
@@ -31,7 +32,7 @@ Client.prototype.monitorGameById = function(gameId, app) {
 					// send the new game value to the client
 					var gameJson = JSON.stringify(row.new_val, null, 2);
 					console.log(gameJson);
-					wsConn.sendUTF(gameJson);
+					webSocketConnection.sendUTF(gameJson);
 				}
 			});
 		})

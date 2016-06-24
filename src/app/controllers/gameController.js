@@ -17,7 +17,9 @@ module.exports.monitorAllGames = function(conn) {
 					var gameJson = JSON.stringify(row.new_val, null, 2);
 					console.log(gameJson);
 					for (var i=0; i<clients.length; i++) {
-						clients[i].connection.sendUTF(gameJson);
+						if (clients[i].monitoringAllGames) {
+							clients[i].connection.sendUTF(gameJson);
+						}
 					}
 				}
 			});
@@ -30,7 +32,7 @@ module.exports.monitorAllGames = function(conn) {
 module.exports.onWebSocketConnection = function(app, request) {
     console.log(new Date() + ' WebSocket connection accepted.');
     var connection = request.accept(null, request.origin);
-	var client = new Client(connection);
+	var client = new Client(connection, app);
     clients.push(client);
 	// call onMessageReceivedFromClient when a new message is received from the client
     connection.on('message', function(message) {
@@ -48,11 +50,11 @@ module.exports.onWebSocketConnection = function(app, request) {
 
 var onMessageReceivedFromClient = function(client, message, app) {
     if (message.monitorAllGames) {
-        client.monitorAllGames = true;
-		client.monitorGameId = null;
+        console.log(new Date() + ' Request received to monitor all games.');
+		client.monitorAllGames(app);
     }
     else if (message.monitorGameId) {
-		client.monitorAllGames = false;
-		client.monitorGameId = message.monitorGameId;
+		console.log(new Date() + ' Request received to monitor game ' + message.monitorGameId + '.');
+		client.monitorGameById(message.monitorGameId, app);
 	}
 };

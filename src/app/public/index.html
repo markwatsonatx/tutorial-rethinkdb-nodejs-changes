@@ -2,30 +2,98 @@
 <html>
 	<head>
 		<script type="text/javascript">
-		function webSocketTest() {
-            if ("WebSocket" in window) {
-               var ws = new WebSocket('ws://' + window.location.hostname + ':8080/');
-               ws.onopen = function() {
-					var message = JSON.stringify({monitorAllGames:true});
-                  	console.log('Sending message: ' + message);
-					ws.send(message);
-               };
-               ws.onmessage = function (evt)  { 
-                  var message = evt.data;
-                  console.log('Message received: ' + message);
-               };
-               ws.onclose = function() { 
-                   console.log('Websocket closed.');
-               };
-			}
-            else {
-               alert("WebSocket not supported browser.");
-            }
-         }
-		 webSocketTest();
-      </script>
 		
-   </head>
-   <body>
-   </body>
+		var webSocket;
+		var gamesTable;
+		var monitoringAllGames;
+		var monitoringGameId;
+
+		function connectToWebSocketServer() {
+			if ("WebSocket" in window) {
+				webSocket = new WebSocket('ws://' + window.location.hostname + ':8080/');
+				webSocket.onopen = function() {
+					monitorAllGames();
+				};
+				webSocket.onmessage = function (evt)  { 
+					console.log('Message received: ' + evt.data);
+					var message = JSON.parse(evt.data);
+					if (! monitoringAllGames) {
+						clearRows();
+					}
+					var row = gamesTable.insertRow(gamesTable.rows.length);
+					addTextCellToRow(row, 0, message.id);
+					addTextCellToRow(row, 1, message.player1);
+					addTextCellToRow(row, 2, message.player2);
+					addTextCellToRow(row, 3, message.status);
+					if (monitoringAllGames) {
+						addHtmlCellToRow(row, 4, '<a href="javascript:monitorGameById(\'' + message.id + '\');">Monitor This Game</a>');
+					}
+					else {
+						addHtmlCellToRow(row, 4, '<a href="javascript:monitorAllGames();">Monitor All Games</a>');
+					}
+				};
+				webSocket.onclose = function() { 
+					console.log('Websocket closed.');
+				};
+			}
+			else {
+				alert("WebSocket not supported browser.");
+			}
+		}
+
+		function monitorAllGames() {
+			clearRows();
+			monitoringAllGames = true;
+			monitoringGameId = null;
+			var message = JSON.stringify({monitorAllGames:true});
+			console.log('Sending message to monitor all games: ' + message);
+			webSocket.send(message);
+		}
+
+		function monitorGameById(gameId) {
+			clearRows();
+			monitoringAllGames = false;
+			monitoringGameId = gameId;
+			var message = JSON.stringify({monitorGameId:monitoringGameId,monitorAllGames:false});
+			console.log('Sending message to monitor game ' + gameId + ': ' + message);
+			webSocket.send(message);
+		}
+
+		function addTextCellToRow(row, index, text) {
+			var cell  = row.insertCell(index);
+			cell.appendChild(document.createTextNode(text));
+		}
+
+		function addHtmlCellToRow(row, index, html) {
+			var cell  = row.insertCell(index);
+			var htmlNode = document.createElement('span');
+    		htmlNode.innerHTML = html;
+    		console.log(html);
+			cell.appendChild(htmlNode);
+		}
+
+		function clearRows() {
+			for(var i = (gamesTable.rows.length-1); i >= 1; i--) {
+   				gamesTable.deleteRow(i);
+			}
+		}
+
+		function init() {
+			gamesTable = document.getElementById('gamesTable').getElementsByTagName('tbody')[0];
+			connectToWebSocketServer();
+		}
+		</script>
+	</head>
+	<body onLoad="init()">
+		<h1>Games:</h1>
+		<table id="gamesTable" border="1" cellspacing="0">
+			<tr>
+				<td>ID</td>
+				<td>Player 1</td>
+				<td>Player 2</td>
+				<td>Status</td>
+				<td></td>
+			</tr>
+		</table>
+	</body>
 </html>
