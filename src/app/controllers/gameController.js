@@ -4,6 +4,13 @@ var r = require('rethinkdb');
 var changesCursor = null;
 var clients = [];
 
+module.exports.getGames = function(app) {
+	var conn = app.get('rethinkdb.conn');
+	return r.table('games').run(conn).then(function(cursor) {
+		return cursor.toArray();
+	});
+};
+
 module.exports.monitorAllGames = function(conn) {
 	return r.table('games').changes().run(conn)
 		.then(function(cursor) {
@@ -15,7 +22,6 @@ module.exports.monitorAllGames = function(conn) {
 				else {
 					// send every game to every client
 					var gameJson = JSON.stringify(row.new_val, null, 2);
-					console.log(gameJson);
 					for (var i=0; i<clients.length; i++) {
 						if (clients[i].monitoringAllGames) {
 							clients[i].connection.sendUTF(gameJson);
