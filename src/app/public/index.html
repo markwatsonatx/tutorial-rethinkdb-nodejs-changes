@@ -1,9 +1,31 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
 	<head>
-		<title>RethinkDB Changes Example</title>
-	</head>
-	<body>
+		<script type="text/javascript">
+		function webSocketTest() {
+            if ("WebSocket" in window) {
+               var ws = new WebSocket('ws://' + window.location.hostname + ':8080/');
+               ws.onopen = function() {
+					var message = JSON.stringify({monitorAllGames:true});
+                  	console.log('Sending message: ' + message);
+					ws.send(message);
+               };
+               ws.onmessage = function (evt)  { 
+                  var message = evt.data;
+                  console.log('Message received: ' + message);
+               };
+               ws.onclose = function() { 
+                   console.log('Websocket closed.');
+               };
+			}
+            else {
+               alert("WebSocket not supported browser.");
+            }
+         }
+		 webSocketTest();
+      </script>
 		
-	</body>
+   </head>
+   <body>
+   </body>
 </html>

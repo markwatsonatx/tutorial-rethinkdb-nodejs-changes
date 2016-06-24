@@ -7,6 +7,8 @@ var r = require('rethinkdb');
 var WebSocketServer = require('websocket').server;
 
 var app = express();
+var webSocketServer;
+
 
 (function(app) {
 	
@@ -34,19 +36,17 @@ var app = express();
 	
 	// create http server and attach web socket server
 	var server = http.createServer(function(request, response) {
-		console.log((new Date()) + ' WebSocket server received request for ' + request.url);
+		console.log(new Date() + ' WebSocket server received request for ' + request.url);
 		response.writeHead(404);
 		response.end();
 	});
 	server.listen(config.websocket.port, function() {
-		console.log((new Date()) + ' WebSocket server is listening on port ' + config.websocket.port);
+		console.log(new Date() + ' WebSocket server is listening on port ' + config.websocket.port);
 	});
-
-	// auto accept connections (note: this should be false for production and each connection's origin should be verified) 
-	websocketServer = new WebSocketServer({httpServer: server, autoAcceptConnections: true});
-	websocketServer.on('request', function(request) {
+	webSocketServer = new WebSocketServer({httpServer: server, autoAcceptConnections: false});
+	webSocketServer.on('request', function(request) {
 		// route connection to webSocketController
-    	gameController.onWebSocketConnection(app, request);
+		gameController.onWebSocketConnection(app, request);
 	});
 })(app);
 

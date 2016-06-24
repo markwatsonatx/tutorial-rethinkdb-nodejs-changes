@@ -28,21 +28,21 @@ module.exports.monitorAllGames = function(conn) {
 };
 
 module.exports.onWebSocketConnection = function(app, request) {
-    console.log((new Date()) + ' WebSocket connection accepted.');
+    console.log(new Date() + ' WebSocket connection accepted.');
     var connection = request.accept(null, request.origin);
 	var client = new Client(connection);
-    clients.push(connection);
+    clients.push(client);
 	// call onMessageReceivedFromClient when a new message is received from the client
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
-            console.log('WebSocket server received message: ' + message.utf8Data);
+            console.log(new Date() + ' WebSocket server received message: ' + message.utf8Data);
             onMessageReceivedFromClient(client, JSON.parse(message.utf8Data), app);
         }
     });
     connection.on('close', function(reasonCode, description) {
 		// remove the client from the array on close
         clients.splice(clients.indexOf(client), 1);
-        console.log((new Date()) + 'WebSocket client ' + connection.remoteAddress + ' disconnected.');
+        console.log(new Date() + ' WebSocket client ' + connection.remoteAddress + ' disconnected.');
     });
 };
 
