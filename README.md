@@ -8,7 +8,7 @@ Follow these simple instructions and you'll be up and running:
 
 ```
 git clone https://github.com/markwatsonatx/tutorial-rethinkdb-nodejs-changes
-cd utorial-rethinkdb-nodejs-changes
+cd tutorial-rethinkdb-nodejs-changes
 docker-compose up -d
 ```
 
