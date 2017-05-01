@@ -7,8 +7,5 @@ module.exports = {
     },
     express: {
         port: 3000
-    },
-	websocket: {
-		port: 8080
-	}
+    }
 }
