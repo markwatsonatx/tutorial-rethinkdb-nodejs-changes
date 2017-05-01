@@ -10,7 +10,7 @@
 
 		function connectToWebSocketServer() {
 			if ("WebSocket" in window) {
-				webSocket = new WebSocket('ws://' + window.location.hostname + ':8080/');
+				webSocket = new WebSocket('ws://' + window.location.href.split('/')[2]);
 				webSocket.onopen = function() {
 					monitorAllGames();
 				};
