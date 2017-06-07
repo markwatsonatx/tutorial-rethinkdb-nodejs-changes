@@ -4,6 +4,8 @@ services:
     image: rethinkdb:latest
     ports:  
       - "38080:8080"
+    labels:
+      - "com.exampleup.proxy.name.38080:RethinkDB"
   web:
     image: markwatsonatx/node-alpine:latest    
     volumes:
@@ -14,3 +16,5 @@ services:
       - "33000:3000"
     depends_on:
       - db
+    labels:
+      - "com.exampleup.proxy.name.33000:Web"

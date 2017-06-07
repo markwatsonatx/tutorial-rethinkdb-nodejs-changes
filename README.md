@@ -1,4 +1,4 @@
-###Intro. to RethinkDB Changefeeds using Node.js and Docker Compose
+### Intro. to RethinkDB Changefeeds using Node.js and Docker Compose
 
 This repository contains a simple Node.js app that shows you how to use [RethinkDB Changefeeds](https://www.rethinkdb.com/docs/changefeeds/).
 The sample includes a simple web client that connects to Node.js via WebSockets and subscribes to events.
